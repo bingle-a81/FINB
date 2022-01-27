@@ -49,3 +49,6 @@ for i in search():#запускаем поиск
     except Exception as e:#обработчик ошибок(не та кодировка и др)
         with open(os.path.join(PATH_FOR_COPY,'errors.txt'),'a') as r:
             r.write(str(e)+'\n'+i+'\n')#пишем в файл errors.txt
+
+if __name__=='__main__' :
+    print('99')
