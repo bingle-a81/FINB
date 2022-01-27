@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os,shutil,time
+import json_modl as js
 
 KEY_FOR_SEARCH='O1029'          #что ищем
 PATH_FOR_SEARCH='//SERVER2016//Docs//УП//УП//Альфа Стил//'   #папка где ищем
@@ -12,12 +13,32 @@ def search():#поиск всех файлов в папках поиска
         if adress == PATH_FOR_COPY:#не ищем в папке для копировани(частный случай)
             continue
         for file in files:
-            data_izm = time.ctime(os.path.getatime(os.path.join(adress,file)))
-            razmer=os.path.getsize(os.path.join(adress,file))
-            print(file,'||',data_izm,'||',razmer)
+            js.write_json(js.poluch_att_file(f_name=attrib(adress,file)[0],f_path=attrib(adress,file)[1],a=attrib(adress,file)[2]))
+
+
+            # js.write_json(js.poluch_att_file(att(adress,file)))
+            # print(file,'||',data_izm,'||',razmer)
             # if file.endswith('.PRG'): # условия отбора файла(расширение и тд)
             yield os.path.join(adress,file)#возвращаем адрес файла
+# -------------------=====================--------------------------
+def attrib(adress,file):
+    data_izm = time.ctime(os.path.getatime(os.path.join(adress, file)))
+    razmer = os.path.getsize(os.path.join(adress, file))
+    name_f=os.path.join(adress, file)
+    lst=[data_izm,razmer,name_f]
+    return lst
 
+
+
+
+def get_dates(adress,file):
+    data_izm = time.ctime(os.path.getatime(os.path.join(adress, file)))
+    # razmer = os.path.getsize(os.path.join(adress, file))
+    return data_izm
+
+def get_razm(adress,file):
+    return os.path.getsize(os.path.join(adress, file))
+# -------------------=====================--------------------------
 def read_from_pathtxt(path):
     with open(path) as r:#только чтение файла
         for i in r:   #построчное чтение
@@ -43,12 +64,16 @@ def copy(path):
     #копируем файл в папку
     print('file copy',file_name)
 
-for i in search():#запускаем поиск
-    try:
-        read_from_pathtxt(i)#ищем ключевое слово
-    except Exception as e:#обработчик ошибок(не та кодировка и др)
-        with open(os.path.join(PATH_FOR_COPY,'errors.txt'),'a') as r:
-            r.write(str(e)+'\n'+i+'\n')#пишем в файл errors.txt
 
-if __name__=='__main__' :
-    print('99')
+
+def main():
+    for i in search():  # запускаем поиск
+        try:
+            read_from_pathtxt(i)  # ищем ключевое слово
+        except Exception as e:  # обработчик ошибок(не та кодировка и др)
+            with open(os.path.join(PATH_FOR_COPY, 'errors.txt'), 'a') as r:
+                r.write(str(e) + '\n' + i + '\n')  # пишем в файл errors.txt
+   # js.write_json(poluch_att_file(poisk_modul.att()))
+
+if __name__ == '__main__':
+    main()
