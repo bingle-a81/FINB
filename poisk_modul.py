@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os,shutil,time
 import json_modl as js
+import parser_nc
 
-KEY_FOR_SEARCH='O1029'          #что ищем
-PATH_FOR_SEARCH='//SERVER2016//Docs//УП//УП//Альфа Стил//'   #папка где ищем
-PATH_FOR_COPY='C://4video//10//'    #папка дляя копирования(должна быть!)
+KEY_FOR_SEARCH='1'          #что ищем
+# PATH_FOR_SEARCH='//VLADIMIR//Users//Public//Alcohol.2.0.2.5629//Атлант//'   #папка где ищем
+PATH_FOR_SEARCH='C:\\4video\\9\\'   #папка где ищем
+PATH_FOR_COPY='C:\\4video\\10\\'    #папка дляя копирования(должна быть!)
 
 
 
@@ -13,31 +15,19 @@ def search():#поиск всех файлов в папках поиска
         if adress == PATH_FOR_COPY:#не ищем в папке для копировани(частный случай)
             continue
         for file in files:
-            js.write_json(js.poluch_att_file(f_name=attrib(adress,file)[0],f_path=attrib(adress,file)[1],a=attrib(adress,file)[2]))
-
-
-            # js.write_json(js.poluch_att_file(att(adress,file)))
-            # print(file,'||',data_izm,'||',razmer)
+            file_in_folder=os.path.join(adress, file)
+            parser_nc.pars(file_in_folder)
+            js.write_json(js.poluch_att_file(path_file=attrib(file_in_folder)[0],razm=attrib(file_in_folder)[1]
+                                             ,date_izm=attrib(file_in_folder)[2]))
             # if file.endswith('.PRG'): # условия отбора файла(расширение и тд)
             yield os.path.join(adress,file)#возвращаем адрес файла
 # -------------------=====================--------------------------
-def attrib(adress,file):
-    data_izm = time.ctime(os.path.getatime(os.path.join(adress, file)))
-    razmer = os.path.getsize(os.path.join(adress, file))
-    name_f=os.path.join(adress, file)
-    lst=[data_izm,razmer,name_f]
+def attrib(file_in_folder):
+    data_izm = time.ctime(os.path.getatime(file_in_folder))
+    razmer = os.path.getsize(os.path.join(file_in_folder))
+    name_f=file_in_folder
+    lst=[name_f,razmer,data_izm]
     return lst
-
-
-
-
-def get_dates(adress,file):
-    data_izm = time.ctime(os.path.getatime(os.path.join(adress, file)))
-    # razmer = os.path.getsize(os.path.join(adress, file))
-    return data_izm
-
-def get_razm(adress,file):
-    return os.path.getsize(os.path.join(adress, file))
 # -------------------=====================--------------------------
 def read_from_pathtxt(path):
     with open(path) as r:#только чтение файла
@@ -50,17 +40,21 @@ def copy(path):
     file_name=path.split('\\')[-1]
 
     #разбиваем путь файла и  находим имя [-1]
-    count=1 #счетчик если имена файлов одинаковые(файл в папке копирования уже есть)
-    while True:
-        if os.path.isfile(os.path.join(PATH_FOR_COPY,file_name)):
-            if f'({count-1})' in file_name:
-                file_name=file_name.replace(f'({count-1})','')
-            file_name=f'({count}).'.join(file_name.split('.'))
-            count+=1
-        else:
-            break
-
-    shutil.copyfile(path,os.path.join(PATH_FOR_COPY,file_name))
+    # count=1 #счетчик если имена файлов одинаковые(файл в папке копирования уже есть)
+    # while True:
+    #     if os.path.isfile(os.path.join(PATH_FOR_COPY,file_name)):
+    #         if f'({count-1})' in file_name:
+    #             file_name=file_name.replace(f'({count-1})','')
+    #         file_name=f'({count}).'.join(file_name.split('.'))
+    #         count+=1
+    #     else:
+    #         break
+    if os.path.isdir(os.path.join(PATH_FOR_COPY,file_name))==False:
+        os.mkdir(os.path.join(PATH_FOR_COPY,file_name))
+    ff=os.path.join(PATH_FOR_COPY,file_name,file_name)
+    print('pp',path)
+    print('a',ff)
+    shutil.copyfile(path,ff)
     #копируем файл в папку
     print('file copy',file_name)
 

@@ -6,12 +6,12 @@ import poisk_modul
 
 
 
-def poluch_att_file(*,f_name,f_path,a):
+def poluch_att_file(*,path_file,razm,date_izm):
 
     person={
-        'name':f_name,
-        'tel':f_path,
-        'path':a
+        'path': path_file,
+        'razmer':razm,
+        'data_chenge':date_izm
     }
     return person
 
@@ -26,6 +26,3 @@ def write_json(person_dict):
 
     with open('pers.json','w') as file:
         json.dump(data,file,indent=2,ensure_ascii=False)
-
-
-# write_json(poluch_att_file('5','7'))
