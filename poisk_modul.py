@@ -8,6 +8,7 @@ KEY_FOR_SEARCH='1'          #что ищем
 PATH_FOR_SEARCH='C:\\4video\\9\\'   #папка где ищем
 PATH_FOR_COPY='C:\\4video\\10\\'    #папка дляя копирования(должна быть!)
 
+time_new_file=0
 
 
 def search():#поиск всех файлов в папках поиска
@@ -19,11 +20,14 @@ def search():#поиск всех файлов в папках поиска
             parser_nc.pars(file_in_folder)
             js.write_json(js.poluch_att_file(path_file=attrib(file_in_folder)[0],razm=attrib(file_in_folder)[1]
                                              ,date_izm=attrib(file_in_folder)[2]))
+            time_new_file=attrib(file_in_folder)[2]
+            print('tyt',time_new_file)
             # if file.endswith('.PRG'): # условия отбора файла(расширение и тд)
             yield os.path.join(adress,file)#возвращаем адрес файла
 # -------------------=====================--------------------------
 def attrib(file_in_folder):
-    data_izm = time.ctime(os.path.getatime(file_in_folder))
+
+    data_izm = os.path.getatime(file_in_folder)
     razmer = os.path.getsize(os.path.join(file_in_folder))
     name_f=file_in_folder
     lst=[name_f,razmer,data_izm]
@@ -38,25 +42,15 @@ def read_from_pathtxt(path):
 def copy(path):
 
     file_name=path.split('\\')[-1]
+    if os.path.isfile(path):
+        time_old_file=os.path.getatime(path)
+        print(time_new_file,'======',time_old_file)
+        if time_new_file<time_old_file:
 
-    #разбиваем путь файла и  находим имя [-1]
-    # count=1 #счетчик если имена файлов одинаковые(файл в папке копирования уже есть)
-    # while True:
-    #     if os.path.isfile(os.path.join(PATH_FOR_COPY,file_name)):
-    #         if f'({count-1})' in file_name:
-    #             file_name=file_name.replace(f'({count-1})','')
-    #         file_name=f'({count}).'.join(file_name.split('.'))
-    #         count+=1
-    #     else:
-    #         break
-    if os.path.isdir(os.path.join(PATH_FOR_COPY,file_name))==False:
-        os.mkdir(os.path.join(PATH_FOR_COPY,file_name))
-    ff=os.path.join(PATH_FOR_COPY,file_name,file_name)
-    print('pp',path)
-    print('a',ff)
-    shutil.copyfile(path,ff)
-    #копируем файл в папку
-    print('file copy',file_name)
+            if os.path.isdir(os.path.join(PATH_FOR_COPY,file_name))==False:
+                os.mkdir(os.path.join(PATH_FOR_COPY,file_name))
+            shutil.copyfile(path,os.path.join(PATH_FOR_COPY,file_name,file_name))
+            print('file copy',file_name)
 
 
 
@@ -67,7 +61,7 @@ def main():
         except Exception as e:  # обработчик ошибок(не та кодировка и др)
             with open(os.path.join(PATH_FOR_COPY, 'errors.txt'), 'a') as r:
                 r.write(str(e) + '\n' + i + '\n')  # пишем в файл errors.txt
-   # js.write_json(poluch_att_file(poisk_modul.att()))
+
 
 if __name__ == '__main__':
     main()
