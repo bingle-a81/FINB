@@ -28,8 +28,10 @@ def serch_in_base(file_name):
 
 
 def chenge_name(st=''):
-    if '.' in st:
-        return st[0:st.index('.')]
+    if st.rfind('.') >0:
+        return st[0:st.rfind('.')]
+    else:
+        return st
 
 
 def main():
@@ -40,7 +42,7 @@ def main():
             lst.append(file_name_old)
 
         flag=all(attrib(i)[1]!=attrib(file)[1] for i in lst)
-        print(flag)
+
         if flag :
             date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
             if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change)) == False:
@@ -53,7 +55,7 @@ def main():
                 os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change))
             shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change,
                                                file_name_new))
-            # os.mkdir(os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change))
+
 
 
 
