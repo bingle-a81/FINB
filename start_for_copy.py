@@ -24,7 +24,7 @@ def serch_in_base(file_name):
         for file in files:
             if file == file_name:
                 adress_file_in_base = os.path.join(adress, file)
-            yield adress_file_in_base  # возвращаем адрес файла
+                yield adress_file_in_base  # возвращаем адрес файла
 
 
 def chenge_name(st=''):
@@ -38,23 +38,22 @@ def main():
         file_name_new = file.split('\\')[-1]
         for file_name_old in serch_in_base(file_name_new):
             lst.append(file_name_old)
+
         flag=all(attrib(i)[1]!=attrib(file)[1] for i in lst)
-
+        print(flag)
         if flag :
-
             date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
-            if os.path.isdir(
-                    os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change)) == False:
-                os.mkdir(os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change))
-                shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change,
+            if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change)) == False:
+                os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change))
+            shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change,
                                                file_name_new))
-            else:
-                date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
-                if os.path.isdir(
-                        os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change)) == False:
-                    os.mkdir(os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change))
-                shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change,
-                                                   file_name_new))
+        else:
+            date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
+            if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change)) == False:
+                os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change))
+            shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change,
+                                               file_name_new))
+            # os.mkdir(os.path.join(PATH_FOR_COPY_NEW_FILES, chenge_name(file_name_new), date_of_change))
 
 
 
