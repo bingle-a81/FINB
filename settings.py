@@ -31,7 +31,7 @@ logger_config = {
         },
         'file': {
             '()': MegaHandler,
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'filename': 'debug.log',
             'formatter': 'std_format'
         }
