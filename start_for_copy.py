@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 import os, shutil, time,io
+import logging.config
+from settings import logger_config
+
+logging.config.dictConfig(logger_config)
+logger = logging.getLogger('app_logger')
 
 # PATH_FOR_SEARCH='//VLADIMIR//Users//Public//Alcohol.2.0.2.5629//Атлант//'   #папка где ищем
 PATH_FOR_CHECK = 'C:\\4video\\8\\'  # папка проги со станков
@@ -50,10 +55,10 @@ def find_name_prog(path):
 
 
 def main():
+    # logger.debug('Enter in to the main()')
     lst = []
     for file in serch_in_check():
-        name_prog=find_name_prog(file)  # ищем ключевое слово
-
+        name_prog=find_name_prog(file)  # парсер названия
         file_name_new = file.split('\\')[-1]
         for file_name_old in serch_in_base(file_name_new):
             lst.append(file_name_old)
@@ -75,11 +80,10 @@ def main():
             shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
                                                file_name_new))
 
-
-
-
-    pass
+    # pass
     # print(serch_in_check())
+    else:
+        print('End of script')
 
 
 if __name__ == '__main__':
