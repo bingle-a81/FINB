@@ -3,8 +3,7 @@ import os, shutil, time,io
 import logging.config
 from settings import logger_config
 
-logging.config.dictConfig(logger_config)
-logger = logging.getLogger('app_logger')
+
 
 # PATH_FOR_SEARCH='//VLADIMIR//Users//Public//Alcohol.2.0.2.5629//Атлант//'   #папка где ищем
 PATH_FOR_CHECK = 'C:\\4video\\8\\'  # папка проги со станков
@@ -20,8 +19,11 @@ def serch_in_check():
 
 
 def attrib(file):
+
     date_of_change = os.path.getmtime(file)
     size_file = os.path.getsize(file)
+
+
     return [date_of_change, size_file]
 
 
@@ -55,7 +57,9 @@ def find_name_prog(path):
 
 
 def main():
-    # logger.debug('Enter in to the main()')
+    logging.config.dictConfig(logger_config)
+    logger = logging.getLogger('app_logger')
+    logger.info("Start ")
     lst = []
     for file in serch_in_check():
         name_prog=find_name_prog(file)  # парсер названия
@@ -83,7 +87,7 @@ def main():
     # pass
     # print(serch_in_check())
     else:
-        print('End of script')
+        logger.info("End")
 
 
 if __name__ == '__main__':
