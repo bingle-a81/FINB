@@ -3,7 +3,8 @@ import os, shutil, time,io
 import logging.config
 from settings import logger_config
 
-
+logging.config.dictConfig(logger_config)
+logger = logging.getLogger('app_logger')
 
 # PATH_FOR_SEARCH='//VLADIMIR//Users//Public//Alcohol.2.0.2.5629//Атлант//'   #папка где ищем
 PATH_FOR_CHECK = 'C:\\4video\\8\\'  # папка проги со станков
@@ -15,6 +16,7 @@ def serch_in_check():
     for adress, dirs, files in os.walk(PATH_FOR_CHECK):
         for file in files:
             adress_file_in_check = os.path.join(adress, file)
+            logger.debug(f'name={adress_file_in_check}')
             yield adress_file_in_check  # возвращаем адрес файла
 
 
@@ -57,8 +59,7 @@ def find_name_prog(path):
 
 
 def main():
-    logging.config.dictConfig(logger_config)
-    logger = logging.getLogger('app_logger')
+
     logger.info("Start ")
     lst = []
     for file in serch_in_check():
@@ -69,20 +70,28 @@ def main():
 
         flag=all(attrib(i)[1]!=attrib(file)[1] for i in lst)
 
-        if flag :
-            date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
-
-            if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
-                os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
-            shutil.copyfile(file,os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
-                                               file_name_new))
+        if flag:
+            try:
+                date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
+                # if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
+                #     os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
+                shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
+                                                   file_name_new))
+                logger.info(
+                    f'file {name_prog} copied to //{os.path.join(name_prog, date_of_change, file_name_new)}')
+            except:
+                logger.exception(f'Exception here FileNotFoundError')
+                pass
         else:
-
-            date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
-            if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
-                os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
-            shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
-                                               file_name_new))
+            try:
+                date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
+                if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
+                    os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
+                shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
+                                                   file_name_new))
+            except:
+                logger.exception(f'Exception here, item = {item}')
+                pass
 
     # pass
     # print(serch_in_check())
