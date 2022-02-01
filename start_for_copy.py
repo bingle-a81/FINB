@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os, shutil, time,io
 
+# PATH_FOR_SEARCH='//VLADIMIR//Users//Public//Alcohol.2.0.2.5629//Атлант//'   #папка где ищем
 PATH_FOR_CHECK = 'C:\\4video\\8\\'  # папка проги со станков
 PATH_FOR_BASE = 'C:\\4video\\9\\'  # папка УП/УП
 PATH_FOR_COPY_NEW_FILES = 'C:\\4video\\10\\'  # копируем новые файлы
@@ -36,18 +37,16 @@ def chenge_name(st=''):
 def find_name_prog(path):
     with open(path,'r') as r:#только чтение файла
         lines = r.readlines()
-        if 'O' in lines[0]:
-            return (lines[0][lines[0].index('(') + 1:lines[0].index(')')]).strip()
-        else:
-            pass
-        if '(' in lines[1]:
-            return  (lines[1][lines[1].index('(') + 1:lines[1].index(')')]).strip()
-        else:
-            pass
-        if '(' in lines[2]:
-            return (lines[2][lines[2].index('(') + 1:lines[2].index(')')]).strip()
+        i=0
+        while i <  3:
+            if '(' in lines[i]:
+                return  (lines[i][lines[i].index('(') + 1:lines[i].index(')')]).strip()
+                break
+            else:
+                i+=1
         else:
             return chenge_name(path.split('\\')[-1])
+
 
 
 def main():
