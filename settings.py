@@ -42,9 +42,17 @@ logger_config = {
             'handlers': ['console', 'file']
             #'propagate': False
         }
-    },
-
-    # 'filters': {},
+    }
+    # 'filters': {
+    #   'color':{
+    #       "DEBUG": "GREEN",
+    #       "INFO": "GREEN",
+    #       "WARNING": "YELLOW",
+    #       "ERROR": "RED",
+    #       "CRITICAL": "RED"
+    #   }
+    #
+    # }
     # 'root': {}   # '': {}
     # 'incremental': True
 }

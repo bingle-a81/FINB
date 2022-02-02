@@ -2,6 +2,7 @@
 import os, shutil, time,io
 import logging.config
 from settings import logger_config
+import re
 
 logging.config.dictConfig(logger_config)
 logger = logging.getLogger('app_logger')
@@ -19,14 +20,14 @@ def serch_in_check():
             logger.debug(f'name={adress_file_in_check}')
             yield adress_file_in_check  # возвращаем адрес файла
 
+# -----------------------------------------------------------------------
 
 def attrib(file):
-
     date_of_change = os.path.getmtime(file)
     size_file = os.path.getsize(file)
-
-
     return [date_of_change, size_file]
+
+# -----------------------------------------------------------------------
 
 
 def serch_in_base(file_name):
@@ -36,6 +37,8 @@ def serch_in_base(file_name):
                 adress_file_in_base = os.path.join(adress, file)
                 yield adress_file_in_base  # возвращаем адрес файла
 
+# -----------------------------------------------------------------------
+
 
 def chenge_name(st=''):
     if st.rfind('.') >0:
@@ -43,24 +46,38 @@ def chenge_name(st=''):
     else:
         return st
 
+# -----------------------------------------------------------------------
+
+def correction_of_the_line(string):
+    reg = re.compile('[^a-zA-Z0-9. ]')
+    a=reg.sub('', string)
+    return a
+
+# -----------------------------------------------------------------------
+
 def find_name_prog(path):
     with open(path,'r') as r:#только чтение файла
-        lines = r.readlines()
         i=0
-        while i <  3:
-            if '(' in lines[i]:
-                return  (lines[i][lines[i].index('(') + 1:lines[i].index(')')]).strip()
+        while i <3:
+            st=r.readline()
+            i += 1
+            if '(' in st:
+                f_name=st[(st.index('(')+1):(st.index(')'))].strip()
+                f_name=correction_of_the_line(f_name)
+                logger.debug(f'name++{f_name}')
+                return f_name
                 break
             else:
-                i+=1
+                pass
         else:
+            a=chenge_name(path.split('\\')[-1])
+            logger.debug(f'name=={a}')
             return chenge_name(path.split('\\')[-1])
 
+# -----------------------------------------------------------------------
 
 
-def main():
-
-    logger.info("Start ")
+def start():
     lst = []
     for file in serch_in_check():
         name_prog=find_name_prog(file)  # парсер названия
@@ -73,14 +90,14 @@ def main():
         if flag:
             try:
                 date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
-                # if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
-                #     os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
+                if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
+                    os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
                 shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
                                                    file_name_new))
                 logger.info(
                     f'file {name_prog} copied to //{os.path.join(name_prog, date_of_change, file_name_new)}')
             except:
-                logger.exception(f'Exception here FileNotFoundError')
+                logger.exception(f'Exception here ')
                 pass
         else:
             try:
@@ -93,11 +110,14 @@ def main():
                 logger.exception(f'Exception here, item = {item}')
                 pass
 
-    # pass
-    # print(serch_in_check())
-    else:
-        logger.info("End")
+# -----------------------------------------------------------------------
 
+def main():
 
+    logger.info("Start ")
+    start()
+    logger.info("End")
+
+# -----------------------------------------------------------------------
 if __name__ == '__main__':
     main()
