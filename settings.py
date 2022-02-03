@@ -26,7 +26,7 @@ logger_config = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'formatter': 'std_format'
         },
         'file': {
