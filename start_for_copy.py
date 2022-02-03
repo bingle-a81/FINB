@@ -12,12 +12,12 @@ PATH_FOR_CHECK = 'C:\\4video\\8\\'  # папка проги со станков
 PATH_FOR_BASE = 'C:\\4video\\9\\'  # папка УП/УП
 PATH_FOR_COPY_NEW_FILES = 'C:\\4video\\10\\'  # копируем новые файлы
 
-
+#***********************************************************************
 def serch_in_check():
     for adress, dirs, files in os.walk(PATH_FOR_CHECK):
         for file in files:
             adress_file_in_check = os.path.join(adress, file)
-            logger.debug(f'name={adress_file_in_check}')
+            # logger.debug(f'name={adress_file_in_check}')
             yield adress_file_in_check  # возвращаем адрес файла
 
 # -----------------------------------------------------------------------
@@ -31,11 +31,20 @@ def attrib(file):
 
 
 def serch_in_base(file_name):
-    for adress, dirs, files in os.walk(PATH_FOR_BASE):
-        for file in files:
-            if file == file_name:
-                adress_file_in_base = os.path.join(adress, file)
-                yield adress_file_in_base  # возвращаем адрес файла
+    try:
+        a=0
+        for adress, dirs, files in os.walk(PATH_FOR_BASE):
+            for file in files:
+                if file == file_name:
+                    adress_file_in_base = os.path.join(adress, file)
+                    a=1
+        if a==0:
+            adress_file_in_base=None
+            logger.info(f'name file== {adress_file_in_base} ')
+        yield adress_file_in_base  # возвращаем адрес файла
+    except:
+        logger.exception(f'Exception here ')
+
 
 # -----------------------------------------------------------------------
 
@@ -77,41 +86,53 @@ def find_name_prog(path):
 # -----------------------------------------------------------------------
 
 
+# ***********************************************************************
 def start():
     lst = []
     for file in serch_in_check():
         name_prog=find_name_prog(file)  # парсер названия
         file_name_new = file.split('\\')[-1]
         for file_name_old in serch_in_base(file_name_new):
-            lst.append(file_name_old)
+            if file_name_old!=None:
+                lst.append(file_name_old)
+                flag=all(attrib(i)[1]!=attrib(file)[1] for i in lst)
+                if flag:
+                    try:
+                        date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
+                        if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
+                            os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
+                        shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
+                                                           file_name_new))
+                        logger.info(
+                            f'file {name_prog} copied to //{os.path.join(name_prog, date_of_change, file_name_new)}')
+                    except:
+                        logger.exception(f'Exception here ')
+                        pass
+                else:
+                    try:
+                        date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
+                        if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
+                            os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
+                        shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
+                                                           file_name_new))
+                    except:
+                        logger.exception(f'Exception here, item = {item}')
+                        pass
+            else:
+                try:
+                    date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
+                    if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
+                        os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
+                    shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
+                                                       file_name_new))
+                    # logger.info(f'file {name_prog} is new!!')
+                except:
+                    logger.exception(f'Exception here, item = {item}')
+                    pass
 
-        flag=all(attrib(i)[1]!=attrib(file)[1] for i in lst)
-
-        if flag:
-            try:
-                date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
-                if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
-                    os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
-                shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
-                                                   file_name_new))
-                logger.info(
-                    f'file {name_prog} copied to //{os.path.join(name_prog, date_of_change, file_name_new)}')
-            except:
-                logger.exception(f'Exception here ')
-                pass
-        else:
-            try:
-                date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
-                if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change)) == False:
-                    os.makedirs(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change))
-                shutil.copyfile(file, os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, date_of_change,
-                                                   file_name_new))
-            except:
-                logger.exception(f'Exception here, item = {item}')
-                pass
-
+# ***********************************************************************
 # -----------------------------------------------------------------------
-
+#
 def main():
 
     logger.info("Start ")
