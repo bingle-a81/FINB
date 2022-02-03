@@ -14,7 +14,7 @@ PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\New_Program\\' 
 
 
 # ***********************************************************************
-def serch_in_check():
+def serch_in_check():   #ищем файл в папке  со станков
     for adress, dirs, files in os.walk(PATH_FOR_CHECK):
         for file in files:
             adress_file_in_check = os.path.join(adress, file)
@@ -23,7 +23,7 @@ def serch_in_check():
 
 # -----------------------------------------------------------------------
 
-def serch_in_base(file_name):
+def serch_in_base(file_name):   #ищем файл в базе программ
     try:
         a = 0
         for adress, dirs, files in os.walk(PATH_FOR_BASE):
@@ -36,11 +36,11 @@ def serch_in_base(file_name):
 
 
 # -----------------------------------------------------------------------
-def find_name_prog(path):
+def find_name_prog(path):   #из программы извлекаем имя файла в скобках
     with open(path, 'r') as r:  # только чтение файла
         i = 0
         while i < 4:
-            st = r.readline()
+            st = r.readline() # чтение текстового файла построчно
             i += 1
             if '(' in st:
                 f_name = st[(st.index('(') + 1):(st.index(')'))].strip()
@@ -51,14 +51,14 @@ def find_name_prog(path):
             else:
                 pass
         else:
-            a = chenge_name(path.split('\\')[-1])
+            a = chenge_name(path.split('\\')[-1]) # если в файле названия нет - берем имя файла
             # logger.debug(f'name=={a}')
             return chenge_name(path.split('\\')[-1])
 
 
 # -----------------------------------------------------------------------
 
-def find_name_machine(path):
+def find_name_machine(path):    #ищем название станка
     with open(path, 'r') as r:  # только чтение файла
         i = 0
         while i < 10:
@@ -91,7 +91,7 @@ def find_name_machine(path):
 # -----------------------------------------------------------------------
 
 
-def attrib(file):
+def attrib(file):   #получаем дату изменения  файла и размер
     date_of_change = os.path.getmtime(file)
     size_file = os.path.getsize(file)
     return [date_of_change, size_file]
@@ -100,7 +100,7 @@ def attrib(file):
 # -----------------------------------------------------------------------
 
 
-def chenge_name(st=''):
+def chenge_name(st=''): # удаляем расширение файла
     if st.rfind('.') > 0:
         return st[0:st.rfind('.')]
     else:
@@ -109,7 +109,7 @@ def chenge_name(st=''):
 
 # -----------------------------------------------------------------------
 
-def correction_of_the_line(string):
+def correction_of_the_line(string): # удаляем символы кроме букв,цифр и точки
     reg = re.compile('[^a-zA-Z0-9. ]')
     a = reg.sub('', string)
     return a
@@ -120,21 +120,21 @@ def correction_of_the_line(string):
 
 # ***********************************************************************
 def start():
-    quantity_old = 0
+    quantity_old = 0 #счетчики
     quantity_change = 0
     quantity_new = 0
 
-    for file in serch_in_check():
-        file_name_new = file.split('\\')[-1]
-        lst = []
-        for file_name_old in serch_in_base(file_name_new):
-            lst.append(file_name_old)
+    for file in serch_in_check():  #ищем файл в папке  со станков
+        file_name_new = file.split('\\')[-1] # имя файла файла со станков
+        lst = [] # список одинаковых файлов
+        for file_name_old in serch_in_base(file_name_new):#ищем файл в базе программ
+            lst.append(file_name_old)   #добовляем в список
         # ========================================================================
         # logger.error(f'lst={lst}')
         name_prog = find_name_prog(file)  # парсер названия
-        name_of_machine = find_name_machine(file)
+        name_of_machine = find_name_machine(file)# парсер станка
         # logger.error(f'machine={name_of_machine}')
-        if lst == []:
+        if lst == []: # если список пустой то файл новый-копируем в папку для новых файлов
             try:
                 date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
                 if os.path.isdir(os.path.join(PATH_FOR_COPY_NEW_FILES, name_prog, name_of_machine, name_prog,
@@ -150,11 +150,11 @@ def start():
                 logger.exception(f'Exception here, item = {item}')
                 pass
         else:
-            flag = all(attrib(i)[1] != attrib(file)[1] for i in lst)
+            flag = all(attrib(i)[1] != attrib(file)[1] for i in lst)#проверка - изменился ли размер файлов в списке
             # logger.error(f'flag={flag}')
             if flag:  # новая версия старой программы
                 try:
-                    dir_file_old = '\\'.join(file_name_old.split(('\\'))[0:7])
+                    dir_file_old = '\\'.join(file_name_old.split(('\\'))[0:7]) # путь до папки в БД УП
                     # logger.info(f'dir {dir_file_old}')
                     date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
                     if os.path.isdir(os.path.join(dir_file_old, name_of_machine, date_of_change)) == False:
@@ -182,7 +182,7 @@ def start():
 #
 def main():
     if os.path.isfile('C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log'): os.remove(
-        'C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log')
+        'C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log') # log файл
 
     logger.info("Start ")
     start()
