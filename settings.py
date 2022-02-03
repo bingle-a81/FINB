@@ -26,13 +26,13 @@ logger_config = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'ERROR',
+            'level': 'INFO',
             'formatter': 'std_format'
         },
         'file': {
             '()': MegaHandler,
             'level': 'INFO',
-            'filename': 'debug.log',
+            'filename': 'C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log',
             'formatter': 'std_format'
         }
     },
