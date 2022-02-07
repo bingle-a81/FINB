@@ -9,13 +9,13 @@ logger = logging.getLogger('app_logger')
 
 # PATH_FOR_SEARCH='//VLADIMIR//Users//Public//Alcohol.2.0.2.5629//Атлант//'   #папка где ищем
 PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\Program_from_machine\\'  # папка проги со станков
-PATH_FOR_BASE = '//SERVER2016\\Docs\\УП\\АРХИВ\\УП\\'  # папка УП/УП
+# PATH_FOR_BASE = '//SERVER2016\\Docs\\УП\\АРХИВ\\УП\\'  # папка УП/УП
 PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\New_Program\\'  # копируем новые файлы
-
+PATH_FOR_BASE = 'C:\\4video\\9\\УП\\УП\\'
 
 # ***********************************************************************
-def serch_in_check():   #ищем файл в папке  со станков
-    for adress, dirs, files in os.walk(PATH_FOR_CHECK):
+def serch_in_check(path_for_check):   #ищем файл в папке  со станков
+    for adress, dirs, files in os.walk(path_for_check):
         for file in files:
             adress_file_in_check = os.path.join(adress, file)
             yield adress_file_in_check  # возвращаем адрес файла
