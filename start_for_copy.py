@@ -3,15 +3,16 @@ import os, shutil, time, io
 import logging.config
 from settings import logger_config
 import re
+import json
 
 logging.config.dictConfig(logger_config)
 logger = logging.getLogger('app_logger')
 
 # PATH_FOR_SEARCH='//VLADIMIR//Users//Public//Alcohol.2.0.2.5629//Атлант//'   #папка где ищем
 PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\Program_from_machine\\'  # папка проги со станков
-# PATH_FOR_BASE = '//SERVER2016\\Docs\\УП\\АРХИВ\\УП\\'  # папка УП/УП
+PATH_FOR_BASE = '//SERVER2016\\Docs\\УП\\АРХИВ\\УП\\'  # папка УП/УП
 PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\New_Program\\'  # копируем новые файлы
-PATH_FOR_BASE = 'C:\\4video\\9\\УП\\УП\\'
+# PATH_FOR_BASE = 'C:\\4video\\9\\УП\\УП\\'
 
 # ***********************************************************************
 def serch_in_check(path_for_check):   #ищем файл в папке  со станков
@@ -23,10 +24,10 @@ def serch_in_check(path_for_check):   #ищем файл в папке  со с�
 
 # -----------------------------------------------------------------------
 
-def serch_in_base(file_name):   #ищем файл в базе программ
+def serch_in_base(path_for_base,file_name):   #ищем файл в базе программ
     try:
         a = 0
-        for adress, dirs, files in os.walk(PATH_FOR_BASE):
+        for adress, dirs, files in os.walk(path_for_base):
             for file in files:
                 if file == file_name:
                     adress_file_in_base = os.path.join(adress, file)
@@ -126,15 +127,30 @@ def start():
     quantity_change = 0
     quantity_new = 0
 
-    for file in serch_in_check():  #ищем файл в папке  со станков
+    for file in serch_in_check(PATH_FOR_CHECK):  #ищем файл в папке  со станков
         file_name_new = file.split('\\')[-1] # имя файла файла со станков
+        name_prog = find_name_prog(file)  # парсер названия
         lst = [] # список одинаковых файлов
-        for file_name_old in serch_in_base(file_name_new):#ищем файл в базе программ
-            lst.append(file_name_old)   #добовляем в список
+        jsonFile = open("guide.json", "r", encoding="utf-8")  # Open the JSON file for reading
+        json_data = json.load(jsonFile)  # Read the JSON into the buffer
+        jsonFile.close()
+        if name_prog in json_data:
+            path_for_base=json_data[name_prog]
+        else:
+            path_for_base =PATH_FOR_BASE
+
+        for f in serch_in_base(path_for_base,file_name_new):#ищем файл в базе программ
+            name_prog_old=find_name_prog(f)  # парсер названия
+            if name_prog_old==name_prog:
+                file_name_old=f
+                lst.append(file_name_old)   #добовляем в список
+            else:
+                continue
+
         # ========================================================================
         # logger.error(f'lst={lst}')
-        name_prog = find_name_prog(file)  # парсер названия
         name_of_machine = find_name_machine(file)# парсер станка
+
         # logger.error(f'machine={name_of_machine}')
         if lst == []: # если список пустой то файл новый-копируем в папку для новых файлов
             try:
@@ -148,6 +164,7 @@ def start():
                                                    file_name_new))
                 quantity_new += 1
                 logger.info(f'file {name_prog} is new!!')
+
             except:
                 logger.exception(f'Exception here, item = {item}')
                 pass
@@ -171,7 +188,7 @@ def start():
                     pass
             else:  # такая программа уже есть
                 quantity_old += 1
-                # logger.info(f'file {name_prog} is here!Dont copy!')
+                logger.info(f'file {name_prog} is {file_name_old}!Dont copy!')
 
     logger.info(f'старых файлов= {quantity_old} ')
     logger.info(f'измененных файлов= {quantity_change} ')
