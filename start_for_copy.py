@@ -40,9 +40,11 @@ def find_name_prog(path):   #из программы извлекаем имя �
     with open(path, 'r') as r:  # только чтение файла
         i = 0
         while i < 4:
+
             st = r.readline() # чтение текстового файла построчно
             i += 1
             if '(' in st:
+
                 f_name = st[(st.index('(') + 1):(st.index(')'))].strip()
                 f_name = correction_of_the_line(f_name)
                 # logger.debug(f'name++{f_name}')
@@ -110,7 +112,7 @@ def chenge_name(st=''): # удаляем расширение файла
 # -----------------------------------------------------------------------
 
 def correction_of_the_line(string): # удаляем символы кроме букв,цифр и точки
-    reg = re.compile('[^a-zA-Z0-9. ]')
+    reg = re.compile('[^a-zA-Z0-9. -]')
     a = reg.sub('', string)
     return a
 
