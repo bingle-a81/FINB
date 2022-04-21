@@ -75,17 +75,21 @@ def find_name_machine(path):  # ищем название станка
         while i < 10:
             st = r.readline()
             i += 1
-            if 'CITIZEN-L12' in st:
-                return 'CITIZEN-L12'
+            if 'CITIZEN-L12-2' in st:
+                return 'CITIZEN-L12(2)'
+            elif 'CITIZEN-L12' in st:
+                return 'CITIZEN-L12(1)'
             elif ';' in st:
                 return 'TFC-125'
-            elif 'G50X60.Y152.' in st:
+            elif 'G50X60.Y152.' in st or 'NOMURA-20' in st or 'ESLI#1' in st:
                 return 'NOMURA-20J2'
             elif 'G50X60.Y330.' in st:
                 return 'NOMURA-16UBS'
             elif 'G50X20.' in st:
                 return 'NOMURA-10E'
-            elif 'NEX' in st or 'M98P7' in st or 'G50Z250.' in st:
+            elif 'NEXTURN-12B' in st or 'G3000' in st or 'G310Z160.T2000' in st:
+                return 'NEXTURN-12B'
+            elif 'NEXTURN26PY' in st or 'M98P7' in st or 'G50Z250.' in st:
                 return 'NEXTURN-26PY'
             elif 'HANHWA' in st or 'M7' in st or 'G310Z210.0T2100' in st:
                 return 'HANHWA-XDH20'
@@ -221,9 +225,9 @@ def main():
     if os.path.isfile('C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log'): os.remove(
         'C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log')  # log файл
 
-    logger.info("Start json")
+    # logger.info("Start json")
     # make_json.chek_json(PATH_FOR_BASE)
-    logger.info("end json")
+    # logger.info("end json")
     logger.info("Start ")
     start()
     logger.info("End")
