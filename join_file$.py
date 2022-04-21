@@ -25,11 +25,16 @@ def main():
                         result = pattern.search(line)
                         if result is None:
                             f.write(line)
+                        else:
+                            pass
+                f.close()
+
                 with open(os.path.join(PATH_FOR_CHECK_JOIN,file_name), 'r') as file1:
                     data1 = file1.read()
                 with open(os.path.join(PATH_FOR_CHECK_JOIN,file_name_2), 'r') as file2:
                     data2 = file2.read()
                 with open(os.path.join(PATH_FOR_CHECK_JOIN_SUM, file_name), 'w') as file_sum:
+                    file_sum.write('\n')
                     file_sum.write('$1\n')
                     file_sum.write(data1)
                     file_sum.write('\n')
