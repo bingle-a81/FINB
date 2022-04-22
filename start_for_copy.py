@@ -5,19 +5,24 @@ from settings import logger_config
 import re
 import json
 import make_json
+import join_files
+
 
 
 
 logging.config.dictConfig(logger_config)
 logger = logging.getLogger('app_logger')
 
-
-
-# PATH_FOR_SEARCH='//VLADIMIR//Users//Public//Alcohol.2.0.2.5629//Атлант//'   #папка где ищем
 PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\Program_from_machine\\'  # папка проги со станков
-PATH_FOR_BASE = '//SERVER2016\\Docs\\УП\\УП\\'  # папка УП/УП
-PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\New_Program\\'  # копируем новые файлы
-ARCHIVE_PROGRAMM = '//SERVER2016\\Docs\\УП\\АРХИВ\\BdUp\\'
+PATH_FOR_BASE = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA\\'  # папка УП/УП
+PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA_NEW\\'  # копируем новые файлы
+ARCHIVE_PROGRAMM = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA_NEW1\\'
+
+#
+# PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\Program_from_machine\\'  # папка проги со станков
+# PATH_FOR_BASE = '//SERVER2016\\Docs\\УП\\УП\\'  # папка УП/УП
+# PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\New_Program\\'  # копируем новые файлы
+# ARCHIVE_PROGRAMM = '//SERVER2016\\Docs\\УП\\АРХИВ\\BdUp\\'
 
 
 # PATH_FOR_BASE = 'C:\\4video\\9\\УП\\УП\\'
@@ -70,39 +75,47 @@ def find_name_prog(path):  # из программы извлекаем имя �
 # -----------------------------------------------------------------------
 
 def find_name_machine(path):  # ищем название станка
+    citizen_lst=['CITIZEN-L12','M52','G630','#814']
+    nomura20_lst = ['NOMURA-20','G50X60.Y152.','G50X252.Y0.']
+    nomura10_lst = ['NOMURA-10', 'G50X20.', 'G50X0.Z0.']
+    nomura16_lst = ['NOMURA-16', 'G50X60.Y330.', 'M131M231']
+    tfc_125_lst = [';', 'CHR']
+    nexturn26py_lst = ['NEXTURN26PY', 'M98P7','G50Z250.' ]
+    nexturn12b_lst = ['NEXTURN-12', 'G3000','G310Z160.T2000']
+    hanhwa_lst=['HANHWA','M7','G310Z210.0T2100']
+    myano_lst=['MIYANO','M94','M177']
+    colhester_lst=['COLCHESTER','G10P']
+    itr_lst=['G0G90G55G95','G0G90G54G95']
+    a='NONE'
     with open(path, 'r') as r:  # только чтение файла
-        i = 0
-        while i < 10:
-            st = r.readline()
-            i += 1
-            if 'CITIZEN-L12-2' in st:
-                return 'CITIZEN-L12(2)'
-            elif 'CITIZEN-L12' in st:
-                return 'CITIZEN-L12(1)'
-            elif ';' in st:
-                return 'TFC-125'
-            elif 'G50X60.Y152.' in st or 'NOMURA-20' in st or 'ESLI#1' in st:
-                return 'NOMURA-20J2'
-            elif 'G50X60.Y330.' in st:
-                return 'NOMURA-16UBS'
-            elif 'G50X20.' in st:
-                return 'NOMURA-10E'
-            elif 'NEXTURN-12B' in st or 'G3000' in st or 'G310Z160.T2000' in st:
-                return 'NEXTURN-12B'
-            elif 'NEXTURN26PY' in st or 'M98P7' in st or 'G50Z250.' in st:
-                return 'NEXTURN-26PY'
-            elif 'HANHWA' in st or 'M7' in st or 'G310Z210.0T2100' in st:
-                return 'HANHWA-XDH20'
-            elif 'MIYANO' in st or 'G50S' in st:
-                return 'MIYANO-BNJ42SY'
-            elif 'G92S' in st or 'COLCHESTER' in st:
-                return 'COLCHESTER-T8MSY'
-            elif 'G0G90G55G95' in st or 'G0G90G54G95' in st:
-                return 'IRT-80'
-        else:
-            return "NONE"
-
-
+        for line in r:
+            if any([x in line for x in citizen_lst]) :
+                a='CITIZEN-L12(1)'
+                with open(path, 'r') as r1:
+                    for line in r1:
+                        if 'G165' in line:
+                            a='CITIZEN-L12(2)'
+            elif any([x in line for x in nomura20_lst]) :
+                a='NOMURA-20J2'
+            elif any([x in line for x in nomura10_lst]) :
+                a='NOMURA-10E'
+            elif any([x in line for x in nomura16_lst]) :
+                a='NOMURA-16UBS'
+            elif any([x in line for x in tfc_125_lst]) :
+                a='TFC-125'
+            elif any([x in line for x in nexturn26py_lst]) :
+                a='NEXTURN-26PY'
+            elif any([x in line for x in nexturn12b_lst]) :
+                a='NEXTURN-12B'
+            elif any([x in line for x in hanhwa_lst]) :
+                a='HANHWA-XDH20'
+            elif any([x in line for x in myano_lst]) :
+                a='MIYANO-BNJ42SY'
+            elif any([x in line for x in colhester_lst]) :
+                a='COLCHESTER'
+            elif any([x in line for x in itr_lst]) :
+                a='IRT-80'
+    return a
 # -----------------------------------------------------------------------
 
 
@@ -129,12 +142,6 @@ def correction_of_the_line(string):  # удаляем символы кроме 
     a = reg.sub('', string)
     return a
 
-
-
-
-
-
-
 # ***********************************************************************
 def start():
     quantity_old = 0  # счетчики
@@ -148,10 +155,10 @@ def start():
         jsonFile = open("guide.json", "r", encoding="utf-8")  # Open the JSON file for reading
         json_data = json.load(jsonFile)  # Read the JSON into the buffer
         jsonFile.close()
-        if name_prog in json_data:
+        if name_prog in json_data:  #если имя файла есть в json-файле - то путь берем оттуда
             path_for_base = json_data[name_prog]
         else:
-            path_for_base = PATH_FOR_BASE
+            path_for_base = PATH_FOR_BASE #иначе ищем в базе УП(общий путь)
 
         for f in serch_in_base(path_for_base, file_name_new):  # ищем файл в базе программ
             name_prog_old = find_name_prog(f)  # парсер названия
@@ -224,13 +231,24 @@ def start():
 def main():
     if os.path.isfile('C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log'): os.remove(
         'C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log')  # log файл
+    source='C:\\Users\\Programmer\\Desktop\\pro\\STANKI\\' #клонируем папки в папку для разбора
+    destination='C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'
+    # shutil.copytree(source, destination, dirs_exist_ok=True)
+    folders_nomura=['nomura20-1','nomura20-2','nomura20-3','nomura10']
+    for x in folders_nomura:
+        join_files.common_files_nomura(destination, x)
 
-    # logger.info("Start json")
-    # make_json.chek_json(PATH_FOR_BASE)
-    # logger.info("end json")
-    logger.info("Start ")
-    start()
-    logger.info("End")
+
+
+
+    # if (time.time())-os.path.getmtime("guide.json")>2500000:#если файл бд не обновлялся больше месяца-обновляем
+    #     logger.info("Start json")
+    #     make_json.chek_json(PATH_FOR_BASE)
+    #     logger.info("end json")
+    #
+    # logger.info("Start ")
+    # start()
+    # logger.info("End")
 
 
 # -----------------------------------------------------------------------
