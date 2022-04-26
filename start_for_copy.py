@@ -13,19 +13,17 @@ import join_files
 logging.config.dictConfig(logger_config)
 logger = logging.getLogger('app_logger')
 
-PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\Program_from_machine\\'  # папка проги со станков
-PATH_FOR_BASE = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA\\'  # папка УП/УП
-PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA_NEW\\'  # копируем новые файлы
-ARCHIVE_PROGRAMM = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA_NEW1\\'
-
-#
-# PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\Program_from_machine\\'  # папка проги со станков
-# PATH_FOR_BASE = '//SERVER2016\\Docs\\УП\\УП\\'  # папка УП/УП
+# PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'  # папка проги со станков
+# PATH_FOR_BASE = '//SERVER2016\\Docs\\УП\\УП-2\\'  # папка УП/УП
 # PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\New_Program\\'  # копируем новые файлы
 # ARCHIVE_PROGRAMM = '//SERVER2016\\Docs\\УП\\АРХИВ\\BdUp\\'
 
+#
+PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'  # папка проги со станков
+PATH_FOR_BASE = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA\\'  # папка УП/УП
+PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA_NEW\\'  # копируем новые файлы
+ARCHIVE_PROGRAMM = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA_arhiv\\'
 
-# PATH_FOR_BASE = 'C:\\4video\\9\\УП\\УП\\'
 
 # ***********************************************************************
 def serch_in_check(path_for_check):  # ищем файл в папке  со станков
@@ -57,8 +55,7 @@ def find_name_prog(path):  # из программы извлекаем имя �
 
             st = r.readline()  # чтение текстового файла построчно
             i += 1
-            if '(' in st:
-
+            if ('(' in st) and (')' in st):
                 f_name = st[(st.index('(') + 1):(st.index(')'))].strip()
                 f_name = correction_of_the_line(f_name)
                 # logger.debug(f'name++{f_name}')
@@ -75,14 +72,14 @@ def find_name_prog(path):  # из программы извлекаем имя �
 # -----------------------------------------------------------------------
 
 def find_name_machine(path):  # ищем название станка
-    citizen_lst=['CITIZEN-L12','M52','G630','#814']
+    citizen_lst=['CITIZEN-L12','G630','#814']
     nomura20_lst = ['NOMURA-20','G50X60.Y152.','G50X252.Y0.']
     nomura10_lst = ['NOMURA-10', 'G50X20.', 'G50X0.Z0.']
     nomura16_lst = ['NOMURA-16', 'G50X60.Y330.', 'M131M231']
-    tfc_125_lst = [';', 'CHR']
+    tfc_125_lst = [';']
     nexturn26py_lst = ['NEXTURN26PY', 'M98P7','G50Z250.' ]
     nexturn12b_lst = ['NEXTURN-12', 'G3000','G310Z160.T2000']
-    hanhwa_lst=['HANHWA','M7','G310Z210.0T2100']
+    hanhwa_lst=['HANHWA','G310Z210.0T2100']
     myano_lst=['MIYANO','M94','M177']
     colhester_lst=['COLCHESTER','G10P']
     itr_lst=['G0G90G55G95','G0G90G54G95']
@@ -143,12 +140,14 @@ def correction_of_the_line(string):  # удаляем символы кроме 
     return a
 
 # ***********************************************************************
-def start():
+def start(folder_machine):
+    logger.info(f'****************************')
+    logger.info(f'machine= {folder_machine} ')
     quantity_old = 0  # счетчики
     quantity_change = 0
     quantity_new = 0
 
-    for file in serch_in_check(PATH_FOR_CHECK):  # ищем файл в папке  со станков
+    for file in serch_in_check(os.path.join(PATH_FOR_CHECK,folder_machine)):  # ищем файл в папке  со станков
         file_name_new = file.split('\\')[-1]  # имя файла файла со станков
         name_prog = find_name_prog(file)  # парсер названия
         lst = []  # список одинаковых файлов
@@ -168,9 +167,29 @@ def start():
             else:
                 continue
 
-        # ========================================================================
-        # logger.error(f'lst={lst}')
-        name_of_machine = find_name_machine(file)  # парсер станка
+        lisst=['nomura20-1-CHANGE','nomura20-2-CHANGE','nomura20-3-CHANGE']
+        if any([i==folder_machine for i in lisst ]):
+            name_of_machine='NOMURA-20J2'
+        elif folder_machine == 'nomura10-CHANGE':
+            name_of_machine = 'NOMURA-10E'
+        elif folder_machine=='colchester':
+            name_of_machine='COLCHESTER'
+        elif folder_machine=='hanhwa':
+            name_of_machine='HANHWA-XDH20'
+        elif folder_machine=='miano':
+            name_of_machine='MIYANO-BNJ42SY'
+        elif folder_machine=='nexturn12':
+            name_of_machine='NEXTURN-12B'
+        elif folder_machine=='nexturn26':
+            name_of_machine='NEXTURN-26PY'
+        elif folder_machine=='nomura16':
+            name_of_machine='NOMURA-16UBS'
+        elif folder_machine=='sitizen-1':
+            name_of_machine='CITIZEN-L12(1)'
+        elif folder_machine=='sitizen-2':
+            name_of_machine='CITIZEN-L12(2)'
+        elif folder_machine=='NONE':
+            name_of_machine = find_name_machine(file)  # парсер станка
 
         # logger.error(f'machine={name_of_machine}')
         if lst == []:  # если список пустой то файл новый-копируем в папку для новых файлов
@@ -229,26 +248,28 @@ def start():
 # -----------------------------------------------------------------------
 #
 def main():
+    # make_json.chek_json(PATH_FOR_BASE)
     if os.path.isfile('C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log'): os.remove(
         'C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log')  # log файл
-    source='C:\\Users\\Programmer\\Desktop\\pro\\STANKI\\' #клонируем папки в папку для разбора
-    destination='C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'
-    # shutil.copytree(source, destination, dirs_exist_ok=True)
-    folders_nomura=['nomura20-1','nomura20-2','nomura20-3','nomura10']
-    for x in folders_nomura:
-        join_files.common_files_nomura(destination, x)
+    # source='C:\\Users\\Programmer\\Desktop\\pro\\STANKI\\'
+    # destination='C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'
+    # shutil.copytree(source, destination, dirs_exist_ok=True) #клонируем папки в папку для разбора
+    folders_nomura = ['nomura20-1', 'nomura20-2', 'nomura20-3', 'nomura10']
+    folders_machine_new_program = ['nomura20-1-CHANGE', 'nomura20-2-CHANGE', 'nomura20-3-CHANGE', 'nomura10-CHANGE',
+                                   'colchester', 'hanhwa', 'miano', 'nexturn12', 'nexturn26', 'nomura16', 'sitizen-1',
+                                   'sitizen-2', 'NONE']
 
-
-
-
+    # for x in folders_nomura:
+    #     join_files.common_files_nomura(destination, x)  # объединяем файлы номура.
     # if (time.time())-os.path.getmtime("guide.json")>2500000:#если файл бд не обновлялся больше месяца-обновляем
     #     logger.info("Start json")
     #     make_json.chek_json(PATH_FOR_BASE)
     #     logger.info("end json")
-    #
-    # logger.info("Start ")
-    # start()
-    # logger.info("End")
+
+    logger.info("Start ")
+    for x in folders_machine_new_program:
+        start(x)
+    logger.info("End")
 
 
 # -----------------------------------------------------------------------
