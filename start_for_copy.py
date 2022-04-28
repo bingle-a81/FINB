@@ -6,23 +6,24 @@ import re
 import json
 import make_json
 import join_files
-
-
-
+from smtp_post import send_email
 
 logging.config.dictConfig(logger_config)
 logger = logging.getLogger('app_logger')
 
-# PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'  # папка проги со станков
-# PATH_FOR_BASE = '//SERVER2016\\Docs\\УП\\УП-2\\'  # папка УП/УП
-# PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\New_Program\\'  # копируем новые файлы
-# ARCHIVE_PROGRAMM = '//SERVER2016\\Docs\\УП\\АРХИВ\\BdUp\\'
+TO_ADDR_MAIL="workmy327@aol.com"
+
+
+PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'  # папка проги со станков
+PATH_FOR_BASE = '//SERVER2016\\Docs\\УП\\УП-2\\'  # папка УП/УП
+PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\New_Program\\'  # копируем новые файлы
+ARCHIVE_PROGRAMM = '//SERVER2016\\Docs\\УП\\АРХИВ\\BdUp\\'
 
 #
-PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'  # папка проги со станков
-PATH_FOR_BASE = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA\\'  # папка УП/УП
-PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA_NEW\\'  # копируем новые файлы
-ARCHIVE_PROGRAMM = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA_arhiv\\'
+# PATH_FOR_CHECK = 'C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'  # папка проги со станков
+# PATH_FOR_BASE = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA\\'  # папка УП/УП
+# PATH_FOR_COPY_NEW_FILES = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA_NEW\\'  # копируем новые файлы
+# ARCHIVE_PROGRAMM = 'C:\\Users\\Programmer\\Desktop\\BDUP\\BAZA_arhiv\\'
 
 
 # ***********************************************************************
@@ -71,47 +72,69 @@ def find_name_prog(path):  # из программы извлекаем имя �
 
 # -----------------------------------------------------------------------
 
-def find_name_machine(path):  # ищем название станка
-    citizen_lst=['CITIZEN-L12','G630','#814']
-    nomura20_lst = ['NOMURA-20','G50X60.Y152.','G50X252.Y0.']
-    nomura10_lst = ['NOMURA-10', 'G50X20.', 'G50X0.Z0.']
-    nomura16_lst = ['NOMURA-16', 'G50X60.Y330.', 'M131M231']
-    tfc_125_lst = [';']
-    nexturn26py_lst = ['NEXTURN26PY', 'M98P7','G50Z250.' ]
-    nexturn12b_lst = ['NEXTURN-12', 'G3000','G310Z160.T2000']
-    hanhwa_lst=['HANHWA','G310Z210.0T2100']
-    myano_lst=['MIYANO','M94','M177']
-    colhester_lst=['COLCHESTER','G10P']
-    itr_lst=['G0G90G55G95','G0G90G54G95']
-    a='NONE'
-    with open(path, 'r') as r:  # только чтение файла
-        for line in r:
-            if any([x in line for x in citizen_lst]) :
-                a='CITIZEN-L12(1)'
-                with open(path, 'r') as r1:
-                    for line in r1:
-                        if 'G165' in line:
-                            a='CITIZEN-L12(2)'
-            elif any([x in line for x in nomura20_lst]) :
-                a='NOMURA-20J2'
-            elif any([x in line for x in nomura10_lst]) :
-                a='NOMURA-10E'
-            elif any([x in line for x in nomura16_lst]) :
-                a='NOMURA-16UBS'
-            elif any([x in line for x in tfc_125_lst]) :
-                a='TFC-125'
-            elif any([x in line for x in nexturn26py_lst]) :
-                a='NEXTURN-26PY'
-            elif any([x in line for x in nexturn12b_lst]) :
-                a='NEXTURN-12B'
-            elif any([x in line for x in hanhwa_lst]) :
-                a='HANHWA-XDH20'
-            elif any([x in line for x in myano_lst]) :
-                a='MIYANO-BNJ42SY'
-            elif any([x in line for x in colhester_lst]) :
-                a='COLCHESTER'
-            elif any([x in line for x in itr_lst]) :
-                a='IRT-80'
+def find_name_machine(folder_machine,path):  # ищем название станка
+    lisst = ['nomura20-1-CHANGE', 'nomura20-2-CHANGE', 'nomura20-3-CHANGE']
+    if any([i == folder_machine for i in lisst]):
+        a = 'NOMURA-20J2'
+    elif folder_machine == 'nomura10-CHANGE':
+        a = 'NOMURA-10E'
+    elif folder_machine == 'colchester':
+        a = 'COLCHESTER'
+    elif folder_machine == 'hanhwa':
+        a = 'HANHWA-XDH20'
+    elif folder_machine == 'miano':
+        a = 'MIYANO-BNJ42SY'
+    elif folder_machine == 'nexturn12':
+        a = 'NEXTURN-12B'
+    elif folder_machine == 'nexturn26':
+        a = 'NEXTURN-26PY'
+    elif folder_machine == 'nomura16':
+        a = 'NOMURA-16UBS'
+    elif folder_machine == 'sitizen-1':
+        a = 'CITIZEN-L12(1)'
+    elif folder_machine == 'sitizen-2':
+        a = 'CITIZEN-L12(2)'
+    elif folder_machine == 'NONE':
+        citizen_lst=['CITIZEN-L12','G630','#814']
+        nomura20_lst = ['NOMURA-20','G50X60.Y152.','G50X252.Y0.']
+        nomura10_lst = ['NOMURA-10', 'G50X20.', 'G50X0.Z0.']
+        nomura16_lst = ['NOMURA-16', 'G50X60.Y330.', 'M131M231']
+        tfc_125_lst = [';']
+        nexturn26py_lst = ['NEXTURN26PY', 'M98P7','G50Z250.' ]
+        nexturn12b_lst = ['NEXTURN-12', 'G3000','G310Z160.T2000']
+        hanhwa_lst=['HANHWA','G310Z210.0T2100']
+        myano_lst=['MIYANO','M94','M177']
+        colhester_lst=['COLCHESTER','G10P']
+        itr_lst=['G0G90G55G95','G0G90G54G95']
+        a='NONE'
+        with open(path, 'r') as r:  # только чтение файла
+            for line in r:
+                if any([x in line for x in citizen_lst]) :
+                    a='CITIZEN-L12(1)'
+                    with open(path, 'r') as r1:
+                        for line in r1:
+                            if 'G165' in line:
+                                a='CITIZEN-L12(2)'
+                elif any([x in line for x in nomura20_lst]) :
+                    a='NOMURA-20J2'
+                elif any([x in line for x in nomura10_lst]) :
+                    a='NOMURA-10E'
+                elif any([x in line for x in nomura16_lst]) :
+                    a='NOMURA-16UBS'
+                elif any([x in line for x in tfc_125_lst]) :
+                    a='TFC-125'
+                elif any([x in line for x in nexturn26py_lst]) :
+                    a='NEXTURN-26PY'
+                elif any([x in line for x in nexturn12b_lst]) :
+                    a='NEXTURN-12B'
+                elif any([x in line for x in hanhwa_lst]) :
+                    a='HANHWA-XDH20'
+                elif any([x in line for x in myano_lst]) :
+                    a='MIYANO-BNJ42SY'
+                elif any([x in line for x in colhester_lst]) :
+                    a='COLCHESTER'
+                elif any([x in line for x in itr_lst]) :
+                    a='IRT-80'
     return a
 # -----------------------------------------------------------------------
 
@@ -141,6 +164,9 @@ def correction_of_the_line(string):  # удаляем символы кроме 
 
 # ***********************************************************************
 def start(folder_machine):
+    time_start=time.localtime()
+    counter_start=time.perf_counter()
+    text_email = f'Проверка станка {folder_machine} начата в {time.strftime("%H:%M:%S", time_start)}\n'
     logger.info(f'****************************')
     logger.info(f'machine= {folder_machine} ')
     quantity_old = 0  # счетчики
@@ -167,31 +193,9 @@ def start(folder_machine):
             else:
                 continue
 
-        lisst=['nomura20-1-CHANGE','nomura20-2-CHANGE','nomura20-3-CHANGE']
-        if any([i==folder_machine for i in lisst ]):
-            name_of_machine='NOMURA-20J2'
-        elif folder_machine == 'nomura10-CHANGE':
-            name_of_machine = 'NOMURA-10E'
-        elif folder_machine=='colchester':
-            name_of_machine='COLCHESTER'
-        elif folder_machine=='hanhwa':
-            name_of_machine='HANHWA-XDH20'
-        elif folder_machine=='miano':
-            name_of_machine='MIYANO-BNJ42SY'
-        elif folder_machine=='nexturn12':
-            name_of_machine='NEXTURN-12B'
-        elif folder_machine=='nexturn26':
-            name_of_machine='NEXTURN-26PY'
-        elif folder_machine=='nomura16':
-            name_of_machine='NOMURA-16UBS'
-        elif folder_machine=='sitizen-1':
-            name_of_machine='CITIZEN-L12(1)'
-        elif folder_machine=='sitizen-2':
-            name_of_machine='CITIZEN-L12(2)'
-        elif folder_machine=='NONE':
-            name_of_machine = find_name_machine(file)  # парсер станка
-
+        name_of_machine = find_name_machine(folder_machine,file)  # парсер станка
         # logger.error(f'machine={name_of_machine}')
+
         if lst == []:  # если список пустой то файл новый-копируем в папку для новых файлов
             try:
                 date_of_change = time.strftime('%d.%m.%Y', time.gmtime(attrib(file)[0]))
@@ -242,36 +246,55 @@ def start(folder_machine):
     logger.info(f'измененных файлов= {quantity_change} ')
     logger.info(f'новых файлов= {quantity_new} ')
     logger.info(f'всего файлов= {quantity_new + quantity_old + quantity_change} ')
-
-
+    # --------------------------------------------------------------
+    # отправка  email
+    time_finish = time.localtime()
+    counter_end=time.perf_counter()
+    text_email += f'Проверка станка {folder_machine} закончена в {time.strftime("%H:%M:%S", time_finish)}\n'
+    # text_email += f'Время проверки {counter_end-counter_start:0.1f} секунд \n'
+    text_email += f'Время проверки {time.strftime("%H:%M:%S", time.gmtime(counter_end-counter_start))} \n'
+    text_email +=(f'старых файлов= {quantity_old} \n')
+    text_email +=(f'измененных файлов= {quantity_change} \n')
+    text_email +=(f'новых файлов= {quantity_new} \n')
+    text_email +=(f'всего файлов= {quantity_new + quantity_old + quantity_change} \n')
+    subject_email=f'Cheak machine  {folder_machine}'
+    send_email(TO_ADDR_MAIL, subject_email, text_email)# отправка  письма
+    print(text_email)
 # ***********************************************************************
 # -----------------------------------------------------------------------
 #
 def main():
-    # make_json.chek_json(PATH_FOR_BASE)
+    counter_start1=time.perf_counter()
     if os.path.isfile('C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log'): os.remove(
         'C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log')  # log файл
-    # source='C:\\Users\\Programmer\\Desktop\\pro\\STANKI\\'
-    # destination='C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'
-    # shutil.copytree(source, destination, dirs_exist_ok=True) #клонируем папки в папку для разбора
+    source='C:\\Users\\Programmer\\Desktop\\pro\\STANKI\\'
+    destination='C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'
+    shutil.copytree(source, destination, dirs_exist_ok=True) #клонируем папки в папку для разбора
     folders_nomura = ['nomura20-1', 'nomura20-2', 'nomura20-3', 'nomura10']
     folders_machine_new_program = ['nomura20-1-CHANGE', 'nomura20-2-CHANGE', 'nomura20-3-CHANGE', 'nomura10-CHANGE',
                                    'colchester', 'hanhwa', 'miano', 'nexturn12', 'nexturn26', 'nomura16', 'sitizen-1',
                                    'sitizen-2', 'NONE']
+    # folders_machine_new_program = ['nomura20-1-CHANGE', 'nomura20-2-CHANGE']
+    for x in folders_nomura:
+        join_files.common_files_nomura(destination, x)  # объединяем файлы номура.
 
-    # for x in folders_nomura:
-    #     join_files.common_files_nomura(destination, x)  # объединяем файлы номура.
-    # if (time.time())-os.path.getmtime("guide.json")>2500000:#если файл бд не обновлялся больше месяца-обновляем
-    #     logger.info("Start json")
-    #     make_json.chek_json(PATH_FOR_BASE)
-    #     logger.info("end json")
+    if (time.time())-os.path.getmtime("guide.json")>(1):#если файл бд не обновлялся больше месяца-обновляем
+        logger.info("Start json")
+        make_json.chek_json(PATH_FOR_BASE)
+        logger.info("end json")
 
     logger.info("Start ")
     for x in folders_machine_new_program:
         start(x)
     logger.info("End")
+    counter_end1=time.perf_counter()
+    text=f'Время проверки {time.strftime("%H:%M:%S", time.gmtime(counter_end1-counter_start1))} \n'
+
+    with open('C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log') as r:
+        text+=r.read()
 
 
+    send_email(TO_ADDR_MAIL, 'File log debug.log ', text)
 # -----------------------------------------------------------------------
 if __name__ == '__main__':
     main()

@@ -19,7 +19,6 @@ def common_files_nomura(path_for_check_join,machine):
                 first_file=open(os.path.join(path_folder,file_name),'r')
                 second_file=open(os.path.join(path_folder,file_name_2),'r')
                 common_file=open(os.path.join(path_folder+'-CHANGE',file_name),'w')
-
                 a='\n$1\n'
                 for line in first_file:
                     if '%' not in line:
@@ -32,6 +31,9 @@ def common_files_nomura(path_for_check_join,machine):
                     else:
                         a=a+'%'
                 common_file.write(a)
+                first_file.close()
+                second_file.close()
+                common_file.close()
 
 
 def main():

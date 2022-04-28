@@ -2,6 +2,8 @@
 import logging
 from logging import StreamHandler, Formatter, LogRecord
 
+
+
 class MegaHandler(logging.Handler):
     def __init__(self, filename):
         logging.Handler.__init__(self)
@@ -12,12 +14,6 @@ class MegaHandler(logging.Handler):
         with open(self.filename, 'a') as file:
             file.write(message + '\n')
 
-
-# class CustomFilter(logging.Filter):
-#     def filter(self, record):
-#         # print(dir(record))
-#         # print(record.new_name)
-#         return record.funcName == 'new_function'
 
 
 
@@ -43,8 +39,8 @@ logger_config = {
             'level': 'INFO',
             'filename': 'C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log',
             'formatter': 'std_format',
-
         },
+
     },
     'loggers': {
         'app_logger': {
@@ -55,32 +51,7 @@ logger_config = {
         'json_logger': {
             'level': 'DEBUG',
             'handlers': ['console'],
-
-
-            # 'propagate': False
         },
 
     },
-    # 'filters': {
-    #     'new_filter': {
-    #         '()': CustomFilter,
-    #     }
-    # },
-
 }
-
-# },
-# 'filters': {
-#     'addFilter':CastormFilter
-# },
-#
-# }
-# 'root': {}   # '': {}
-# 'incremental': True
-# class CastormFilter(logging.Filter):
-#     COLOR = {
-#         'DEBUG': "GREEN",
-#         "INFO": "YELLOW",
-#         'ERROR': 'RED',
-#         'CRITICAL': 'RED'
-#     }

@@ -32,8 +32,6 @@ def chek_json(path_for_base):
                 logger.info(f'{data[name_prog]}')
             else:
                 continue
-
-
             ## Save our changes to JSON file
             jsonFile = open("guide.json", "w+", encoding="utf-8")
             jsonFile.write(json.dumps(data,indent=4,ensure_ascii=True))
