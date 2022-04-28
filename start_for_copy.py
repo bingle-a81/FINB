@@ -278,7 +278,7 @@ def main():
     for x in folders_nomura:
         join_files.common_files_nomura(destination, x)  # объединяем файлы номура.
 
-    if (time.time())-os.path.getmtime("guide.json")>(1):#если файл бд не обновлялся больше месяца-обновляем
+    if (time.time())-os.path.getmtime("guide.json")>(60*60*24*30):#если файл бд не обновлялся больше месяца-обновляем
         logger.info("Start json")
         make_json.chek_json(PATH_FOR_BASE)
         logger.info("end json")
