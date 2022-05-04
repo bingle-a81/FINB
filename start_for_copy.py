@@ -249,14 +249,14 @@ def start(folder_machine):
     # --------------------------------------------------------------
     # отправка  email
     time_finish = time.localtime()
-    counter_end=time.perf_counter()
-    text_email += f'Проверка станка {folder_machine} закончена в {time.strftime("%H:%M:%S", time_finish)}\n'
-    # text_email += f'Время проверки {counter_end-counter_start:0.1f} секунд \n'
-    text_email += f'Время проверки {time.strftime("%H:%M:%S", time.gmtime(counter_end-counter_start))} \n'
-    text_email +=(f'старых файлов= {quantity_old} \n')
-    text_email +=(f'измененных файлов= {quantity_change} \n')
-    text_email +=(f'новых файлов= {quantity_new} \n')
-    text_email +=(f'всего файлов= {quantity_new + quantity_old + quantity_change} \n')
+    counter_end = time.perf_counter()
+    text_email += f'Проверка станка {folder_machine} закончена в {time.strftime("%H:%M:%S", time_finish)}\n ' \
+                  f'Время проверки {time.strftime("%H:%M:%S", time.gmtime(counter_end - counter_start))} \n' \
+                  f'старых файлов= {quantity_old} \n' \
+                  f'измененных файлов= {quantity_change} \n' \
+                  f'новых файлов= {quantity_new} \n' \
+                  f'всего файлов= {quantity_new + quantity_old + quantity_change} \n'
+
     subject_email=f'Cheak machine  {folder_machine}'
     send_email(TO_ADDR_MAIL, subject_email, text_email)# отправка  письма
     print(text_email)
@@ -268,17 +268,16 @@ def main():
     if os.path.isfile('C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log'): os.remove(
         'C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log')  # log файл
     source='C:\\Users\\Programmer\\Desktop\\pro\\STANKI\\'
-    destination='C:\\Users\\Programmer\\Desktop\\BDUP\\STANKI\\'
-    shutil.copytree(source, destination, dirs_exist_ok=True) #клонируем папки в папку для разбора
+    shutil.copytree(source,PATH_FOR_CHECK, dirs_exist_ok=True) #клонируем папки в папку для разбора
     folders_nomura = ['nomura20-1', 'nomura20-2', 'nomura20-3', 'nomura10']
     folders_machine_new_program = ['nomura20-1-CHANGE', 'nomura20-2-CHANGE', 'nomura20-3-CHANGE', 'nomura10-CHANGE',
                                    'colchester', 'hanhwa', 'miano', 'nexturn12', 'nexturn26', 'nomura16', 'sitizen-1',
                                    'sitizen-2', 'NONE']
-    # folders_machine_new_program = ['nomura20-1-CHANGE', 'nomura20-2-CHANGE']
+    # folders_machine_new_program = [ 'NONE']
     for x in folders_nomura:
-        join_files.common_files_nomura(destination, x)  # объединяем файлы номура.
+        join_files.common_files_nomura(PATH_FOR_CHECK, x)  # объединяем файлы номура.
 
-    if (time.time())-os.path.getmtime("guide.json")>(60*60*24*30):#если файл бд не обновлялся больше месяца-обновляем
+    if (time.time())-os.path.getmtime("guide.json")>1:#если файл бд не обновлялся больше месяца-обновляем(60*60*24*30)
         logger.info("Start json")
         make_json.chek_json(PATH_FOR_BASE)
         logger.info("end json")
