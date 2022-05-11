@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import time
 
 import settings
 import start_for_copy as st
@@ -12,10 +13,17 @@ logger = logging.getLogger('json_logger')
 
 # -----------------------------------------------------------------------
 def chek_json(path_for_base):
+    time_start = time.localtime()
+    counter_start = time.perf_counter()
+    logger.info( f'Проверка JSON файла начата в {time.strftime("%H:%M:%S", time_start)}\n')
+    logger.info(f'****************************')
+
 
     for file in st.serch_in_check(path_for_base):  #ищем файл в папке  со станков
         file_name_new = file.split('\\')[-1]  # имя файла файла со станков
-        dir_file = '\\'.join(file.split(('\\'))[0:6])  # путь до папки в БД УП
+        # print(file_name_new)
+        dir_file = '\\'.join(file.split('\\')[:10])  # путь до папки в БД УП
+        # print(dir_file)
 
         a = [file.endswith(a) for a in
              ['jpg', 'pdf', 'bin', 'PDF', 'doc', 'zip', 'lnk', 'exe', 'db', 'docx', 'png', 'bmp', 'ICO', 'bat', '0L',
@@ -39,8 +47,11 @@ def chek_json(path_for_base):
         else:
             pass
 
-
-
+    time_finish = time.localtime()
+    counter_end = time.perf_counter()
+    logger.info(  f'Проверка JSON файла закончена в {time.strftime("%H:%M:%S", time_finish)}\n ' \
+                  f'Время проверки {time.strftime("%H:%M:%S", time.gmtime(counter_end - counter_start))} \n' )
+    logger.info(f'****************************')
 
 def main():
     pass

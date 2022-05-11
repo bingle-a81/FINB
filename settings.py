@@ -37,6 +37,7 @@ logger_config = {
         'file': {
             '()': MegaHandler,
             'level': 'INFO',
+            # 'filename':'//SERVER2016\\Docs\\УП\\АРХИВ\\BdUp\\debug.log',
             'filename': 'C:\\Users\\Programmer\\Desktop\\BDUP\\debug.log',
             'formatter': 'std_format',
         },
@@ -50,7 +51,7 @@ logger_config = {
         },
         'json_logger': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console','file'],
         },
 
     },
