@@ -8,6 +8,7 @@ def send_email(to_addr, subject, text, encode='utf-8'):
     Отправка электронного письма (email)
     """
 
+
     base_path = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(base_path, "email.ini")
     # проверка наличия файла `email.ini`

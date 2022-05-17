@@ -8,6 +8,7 @@ import make_json
 import join_files
 from smtp_post import send_email
 from configparser import ConfigParser
+import pyauto_start
 
 logging.config.dictConfig(logger_config)
 logger = logging.getLogger('app_logger')
@@ -104,17 +105,17 @@ def find_name_machine(folder_machine, path):  # ищем название ста
     elif folder_machine == 'sitizen-2':
         a = 'CITIZEN-L12(2)'
     elif folder_machine == 'NONE':
-        citizen_lst = ['CITIZEN-L12', 'G630', '#814']
-        nomura20_lst = ['NOMURA-20', 'G50X60.Y152.', 'G50X252.Y0.']
-        nomura10_lst = ['NOMURA-10', 'G50X20.', 'G50X0.Z0.']
-        nomura16_lst = ['NOMURA-16', 'G50X60.Y330.', 'M131M231']
-        tfc_125_lst = [';']
-        nexturn26py_lst = ['NEXTURN26PY', 'M98P7', 'G50Z250.']
-        nexturn12b_lst = ['NEXTURN-12', 'G3000', 'G310Z160.T2000']
-        hanhwa_lst = ['HANHWA', 'G310Z210.0T2100']
-        myano_lst = ['MIYANO', 'M94', 'M177']
-        colhester_lst = ['COLCHESTER', 'G10P']
-        itr_lst = ['G0G90G55G95', 'G0G90G54G95']
+        citizen_lst = ('CITIZEN-L12', 'G630', '#814')
+        nomura20_lst = ('NOMURA-20', 'G50X60.Y152.', 'G50X252.Y0.')
+        nomura10_lst = ('NOMURA-10', 'G50X20.', 'G50X0.Z0.')
+        nomura16_lst = ('NOMURA-16', 'G50X60.Y330.', 'M131M231')
+        tfc_125_lst = (';')
+        nexturn26py_lst = ('NEXTURN26PY', 'M98P7', 'G50Z250.')
+        nexturn12b_lst = ('NEXTURN-12', 'G3000', 'G310Z160.T2000')
+        hanhwa_lst = ('HANHWA', 'G310Z210.0T2100')
+        myano_lst = ('MIYANO', 'M94', 'M177')
+        colhester_lst = ('COLCHESTER', 'G10P')
+        itr_lst = ('G0G90G55G95', 'G0G90G54G95')
         a = 'NONE'
         with open(path, 'r') as r:  # только чтение файла
             for line in r:
@@ -288,34 +289,34 @@ def main():
 
     if os.path.isfile(LOG_FILE): os.remove(LOG_FILE)  # log файл
     shutil.copytree(source, PATH_FOR_CHECK, dirs_exist_ok=True)  # клонируем папки в папку для разбора
-    folders_machine_new_program = ['nomura20-1-CHANGE', 'nomura20-2-CHANGE', 'nomura20-3-CHANGE', 'nomura10-CHANGE',
+    folders_machine_new_program = ('nomura20-1-CHANGE', 'nomura20-2-CHANGE', 'nomura20-3-CHANGE', 'nomura10-CHANGE',
                                    'colchester', 'hanhwa', 'miano', 'nexturn12', 'nexturn26', 'nomura16', 'sitizen-1',
-                                   'sitizen-2', 'NONE']
-    folders_nomura = ['nomura20-1', 'nomura20-2', 'nomura20-3', 'nomura10']
+                                   'sitizen-2', 'NONE')
+    folders_nomura = ('nomura20-1', 'nomura20-2', 'nomura20-3', 'nomura10')
     # folders_machine_new_program = [ 'NONE']
     for x in folders_nomura:
         join_files.common_files_nomura(PATH_FOR_CHECK, x)  # объединяем файлы номура.
-
-    # если файл бд не обновлялся больше месяца-обновляем(60*60*24*30)
-    if (time.time()) - os.path.getmtime("guide.json") > 0:
-        logger.info("Start json")
-        make_json.chek_json(PATH_FOR_BASE)
-        logger.info("end json")
     #
-    logger.info("Start ")
-    for x in folders_machine_new_program:
-        start(x)
-    logger.info("End")
-
-
-    counter_end1 = time.perf_counter()
-    text = f'Время проверки {time.strftime("%H:%M:%S", time.gmtime(counter_end1 - counter_start1))} \n'
-    with open(LOG_FILE, 'r') as r:
-        text += r.read()
-
-    # time.sleep(60 * 3)
-
-    send_email(TO_ADDR_MAIL, 'File log debug.log ', text)
+    # # если файл бд не обновлялся больше месяца-обновляем(60*60*24*30)
+    # if (time.time()) - os.path.getmtime("guide.json") > 0:
+    #     logger.info("Start json")
+    #     make_json.chek_json(PATH_FOR_BASE)
+    #     logger.info("end json")
+    # #
+    # logger.info("Start ")
+    # for x in folders_machine_new_program:
+    #     start(x)
+    # logger.info("End")
+    #
+    #
+    # counter_end1 = time.perf_counter()
+    # text = f'Время проверки {time.strftime("%H:%M:%S", time.gmtime(counter_end1 - counter_start1))} \n'
+    # with open(LOG_FILE, 'r') as r:
+    #     text += r.read()
+    #
+    # # time.sleep(60 * 3)
+    #
+    # send_email(TO_ADDR_MAIL, 'File log debug.log ', text)
 
 
 # -----------------------------------------------------------------------
